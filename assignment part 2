@@ -1,0 +1,82 @@
+#include <iostream>
+#include <vector>
+#include <fstream>
+using namespace std;
+
+struct Order {
+    int orderID;
+    string customerName;
+    int itemCount;
+    double pricePerItem;
+};
+
+double calculateTotal(const Order& o) {
+    return o.itemCount * o.pricePerItem;
+}
+
+int main() {
+    vector<Order> orders;
+    int n;
+
+    cout << "Enter total number of orders: ";
+    cin >> n;
+
+    for (int i = 0; i < n; i++) {
+        Order o;
+
+        cout << "\nOrder " << i + 1 << endl;
+        cout << "Order ID: ";
+        cin >> o.orderID;
+
+        cout << "Customer Name: ";
+        cin.ignore();
+        getline(cin, o.customerName);
+
+        do {
+            cout << "Number of Items: ";
+            cin >> o.itemCount;
+        } while (o.itemCount <= 0);
+
+        do {
+            cout << "Price per Item: ";
+            cin >> o.pricePerItem;
+        } while (o.pricePerItem <= 0);
+
+        orders.push_back(o);
+    }
+
+    ofstream fout("priority_orders.txt");
+    if (!fout) {
+        cout << "File write error" << endl;
+        return 1;
+    }
+
+    for (const auto& o : orders) {
+        double total = calculateTotal(o);
+        if (total > 5000) {
+            fout << "Order ID: " << o.orderID << endl;
+            fout << "Customer Name: " << o.customerName << endl;
+            fout << "Items: " << o.itemCount << endl;
+            fout << "Price per Item: " << o.pricePerItem << endl;
+            fout << "Total Amount: " << total << endl;
+            fout << "-----------------------------" << endl;
+        }
+    }
+    fout.close();
+
+    ifstream fin("priority_orders.txt");
+    if (!fin) {
+        cout << "File read error" << endl;
+        return 1;
+    }
+
+    cout << "\nPriority Orders\n";
+    cout << "-----------------------------\n";
+    string line;
+    while (getline(fin, line)) {
+        cout << line << endl;
+    }
+    fin.close();
+
+    return 0;
+}
